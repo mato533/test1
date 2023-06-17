@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "https://github.com/mato533/test1.git",
   "author": "mato533 <neo_universe_84@yahoo.co.jp>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
 }
