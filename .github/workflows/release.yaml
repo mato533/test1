@@ -31,6 +31,7 @@ jobs:
             git commit -m "Update"
             git push
           fi
+
       - run: echo "APP_VERSION=$(echo ${{ github.event.head_commit.message }} |grep -o -E "(v[0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)">>"${GITHUB_ENV}"
       - run: echo "${{ env.APP_VERSION }}"
       - run: echo "PR_TITLE=[RELEASE] ${{ env.APP_VERSION }}">>"${GITHUB_ENV}"
