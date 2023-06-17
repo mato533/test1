@@ -8,7 +8,7 @@ on:
       - "!*"
 
 jobs:
-  build:
+  pre-releas-task:
     if: "${{ contains(github.event.head_commit.message, 'release: v') }}"
 
     runs-on: ubuntu-latest
@@ -33,3 +33,14 @@ jobs:
           fi
       - run: echo "APP_VERSION=$(echo ${{ github.event.head_commit.message }} |grep -o -E "(v[0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)">>"${GITHUB_ENV}"
       - run: echo "${{ env.APP_VERSION }}"
+      - run: echo "PR_TITLE=[RELEASE] ${{ env.APP_VERSION }}">>"${GITHUB_ENV}"
+      - run: echo "PR_COUNT=$(gh pr list -S '${{ env.PR_TITLE }}' in:title | wc -l)" >>"${GITHUB_ENV}"
+
+      - name: Create pull request
+        if: ${{ env.PR_COUNT }} == 0
+        run: |
+          gh pr create \
+            -B master \
+            -t '${{ env.PR_TITLE }}' \
+            -a ${{ github.actor }}
+            --body-file ./.github/RELEASE_WORKFLOW_TEMPLATE.md
