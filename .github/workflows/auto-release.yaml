@@ -1,0 +1,38 @@
+on:
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+      GH_USER: "github-actions[bot]"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "yarn"
+      - run: git config --local user.email "${{ env.GH_EMAIL }}"
+      - run: git config --local user.name "${{ env.GH_USER }}"
+
+      - run: echo test
+      - run: echo "${{ github.event.pull_request.head.ref }}"
+
+      - run: echo "${{ github.event.pull_request.title }}"
+      - run: echo "APP_VERSION=$(echo ${{ github.event.pull_request.title }} |grep -o -E "([0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)">>"${GITHUB_ENV}"
+      - run: |
+          APP_VERSION=$(echo ${{ github.event.pull_request.title }} |grep -o -E "([0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)"
+          if [ ! -n "${APP_VERSION}" ]
+          then
+            exit 255
+          fi
+      - run: |
+          git tag "v${APP_VERSION}" 
+          git push origin "v${APP_VERSION}"

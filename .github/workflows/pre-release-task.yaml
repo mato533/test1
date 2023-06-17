@@ -1,0 +1,63 @@
+name: Pre-release tasks
+
+on:
+  push:
+    branches:
+      - release/**
+    tags:
+      - "!*"
+
+jobs:
+  pre-releas-task:
+    if: "${{ contains(github.event.head_commit.message, 'release:') }}"
+
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+      GH_USER: "github-actions[bot]"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "yarn"
+
+      - run: echo "CHANGELOG">>./test.txt
+      - run: echo lint
+      - run: echo "APP_VERSION=$(echo ${{ github.event.head_commit.message }} |grep -o -E "([0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)">>"${GITHUB_ENV}"
+      - run: yarn version --new-version "${{ env.APP_VERSION }}" --no-git-tag-version
+      - run: git config --local user.email "${{ env.GH_EMAIL }}"
+      - run: git config --local user.name "${{ env.GH_USER }}"
+      - run: |
+          git add -N .
+          if ! git diff --exit-code --quiet
+          then
+            git add .
+            git commit -m "Update"
+            git push
+          fi
+
+      - run: echo "${{ env.APP_VERSION }}"
+      - run: echo "PR_TITLE=[RELEASE] v${{ env.APP_VERSION }}">>"${GITHUB_ENV}"
+      - run: echo "PR_COUNT=$(gh pr list -S '${{ env.PR_TITLE }}' in:title | wc -l)" >>"${GITHUB_ENV}"
+
+      - name: Create pull request(for master)
+        if: ${{ env.PR_COUNT }} == 0
+        run: |
+          gh pr create \
+            -B master \
+            -t '${{ env.PR_TITLE }}' \
+            -a ${{ github.actor }} \
+            --body-file ./.github/RELEASE_WORKFLOW_TEMPLATE.md
+
+      - name: Create pull request(for develop)
+        if: ${{ env.PR_COUNT }} == 0
+        run: |
+          gh pr create \
+            -B develop \
+            -t '${{ env.PR_TITLE }}' \
+            -a ${{ github.actor }} \
+            --body-file ./.github/RELEASE_WORKFLOW_TEMPLATE.md
