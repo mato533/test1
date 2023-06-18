@@ -29,7 +29,7 @@ jobs:
       - name: Identify the version about to release
         id: identify-version
         run: |
-          APP_VERSION="$(echo ${{ github.event.pull_request.title }} |grep -o -E "([0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)"
+          APP_VERSION="$(echo '${{ github.event.pull_request.title }}' |grep -o -E "([0-9]+\.){1}[0-9]+(\.[0-9]+)?" | head -n1)"
           if [ ! -n "${APP_VERSION}" ]
           then
             exit 255
@@ -114,6 +114,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Pull the remote branch
+        run: git pull $(git remote show) ${{ github.ref_name }}
       - uses: actions/setup-node@v3
         with:
           node-version: "18.x"
@@ -127,7 +129,7 @@ jobs:
       - name: Define the pull request title.
         id: define-pr-title
         run: |
-          echo "pr_title=chore: Merge the latest release ${{ needs.prepare.outputs.app_version_text }} to develop">>"${GITHUB_OUTPUT}"
+          echo "pr_title=chore: Merge the latest release ${{ needs.prepare.outputs.app_version_text }} (develop)">>"${GITHUB_OUTPUT}"
 
       - name: Create pull request(for develop)
         run: |

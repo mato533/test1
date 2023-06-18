@@ -81,7 +81,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: git checkout HEAD
+      - name: Pull the remote branch
+        run: git pull $(git remote show) ${{ github.ref_name }}
       - uses: actions/setup-node@v3
         with:
           node-version: "18.x"
@@ -103,7 +104,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: git checkout HEAD
+      - name: Pull the remote branch
+        run: git pull $(git remote show) ${{ github.ref_name }}
       - uses: actions/setup-node@v3
         with:
           node-version: "18.x"
@@ -139,6 +141,6 @@ jobs:
         run: |
           gh pr create \
             -B master \
-            -t "${{ steps.define-pr-title.outputs.pr_title }} (to master)" \
+            -t "${{ steps.define-pr-title.outputs.pr_title }} (master)" \
             -a ${{ github.actor }} \
             --body-file ./.github/RELEASE_WORKFLOW_TEMPLATE.md
