@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: "18.x"
           cache: "yarn"
+
       - name: Identify the version about to release
         id: identify-version
         run: |
