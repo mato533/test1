@@ -1,3 +1,5 @@
+name: Release
+
 on:
   pull_request:
     branches:
@@ -80,6 +82,29 @@ jobs:
 
       - name: Publish
         run: echo "NPM PUBLISH"
+  upload-coverage:
+    needs:
+      - prepare
+      - test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Run the coverage
+        run: |
+          echo "run coverage"
+
+      - name: Upload the coverage file
+        run: |
+          echo coverage
 
   tag:
     needs:
@@ -116,8 +141,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Pull the remote branch
-        run: git pull $(git remote show) ${{ github.ref_name }}
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
       - uses: actions/setup-node@v3
         with:
           node-version: "18.x"
