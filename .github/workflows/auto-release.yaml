@@ -15,7 +15,9 @@ jobs:
   prepare:
     if: >-
       github.event.pull_request.merged == true &&
-      ${{ !contains(github.event.pull_request.comments, 'skip di') }}
+      ( ${{ !contains(github.event.pull_request.title, 'skip di') }} &&
+        ${{ !contains(github.event.pull_request.body, 'skip di') }}
+      )
 
     runs-on: ubuntu-latest
 
