@@ -29,7 +29,8 @@ jobs:
         with:
           node-version: "18.x"
           cache: "yarn"
-
+      - run: echo ${{ toJson(github.event.pull_request.comments) }}
+      - run: echo ${{ github.event.pull_request.comments }}
       - name: Identify the version about to release
         id: identify-version
         run: |
