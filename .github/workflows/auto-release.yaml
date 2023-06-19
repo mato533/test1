@@ -142,8 +142,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
-      - name: Checkout the commit for pull request
-        run: git checkout ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-node@v3
         with:
