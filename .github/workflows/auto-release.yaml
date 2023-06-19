@@ -32,8 +32,8 @@ jobs:
           node-version: "18.x"
           cache: "yarn"
       - run: echo ${{ toJson(github.event.pull_request.title) }}
-      - run: echo ${{github.event.pull_request.title }}
-      - run: echo ${{github.event.pull_request.body }}
+      - run: echo "${{github.event.pull_request.title }}"
+      - run: echo "${{github.event.pull_request.body }}"
       - name: Identify the version about to release
         id: identify-version
         run: |
