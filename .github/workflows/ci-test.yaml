@@ -25,7 +25,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.GH_EMAIL }}"
           git config --local user.name "${{ env.GH_USER }}"
-      - run: echo TEST>./test.txt
+      - run: echo "TEST" >>./test.txt
       - name: Commit and push
         run: |
           git add -N .
