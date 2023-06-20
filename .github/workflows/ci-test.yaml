@@ -1,0 +1,34 @@
+name: CI Test
+run-name: CI TEST
+
+on:
+  push:
+    branches:
+      - feature/ci-test
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+  GH_USER: "github-actions[bot]"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "yarn"
+      - name: Commit and push
+        run: |
+          git add -N .
+          if ! git diff --exit-code --quiet
+          then
+            git add .
+            git commit -m "TEST"
+            git push
+          fi
+      - name: OK
+        run: echo "OK!"
