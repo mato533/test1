@@ -21,12 +21,13 @@ jobs:
         with:
           node-version: "18.x"
           cache: "yarn"
+      - run: echo TEST>./test.txt
       - name: Commit and push
         run: |
           git add -N .
           if ! git diff --exit-code --quiet
           then
-            git add .
+            git add -N .
             git commit -m "TEST"
             git push
           fi
