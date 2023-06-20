@@ -21,6 +21,10 @@ jobs:
         with:
           node-version: "18.x"
           cache: "yarn"
+      - name: Set Github user informations.
+        run: |
+          git config --local user.email "${{ env.GH_EMAIL }}"
+          git config --local user.name "${{ env.GH_USER }}"
       - run: echo TEST>./test.txt
       - name: Commit and push
         run: |
