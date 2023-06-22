@@ -5,7 +5,8 @@ on:
   push:
     branches:
       - feature/ci-test
-
+    paths:
+      - "package.json"
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
@@ -14,10 +15,15 @@ env:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-
+    outputs:
+      is_release: ${{ steps.check-diff-version.outputs.is_release }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
           node-version: "18.x"
           cache: "yarn"
@@ -26,15 +32,29 @@ jobs:
         run: |
           git config --local user.email "${{ env.GH_EMAIL }}"
           git config --local user.name "${{ env.GH_USER }}"
-      - run: echo "TEST" >>./test.txt
-      - name: Commit and push
+
+      - name: Check the version
+        id: check-diff-version
         run: |
-          git add .
-          if ! git diff --exit-code --quiet
-          then
-            git add -N .
-            git commit -m "TEST"
-            git push
+          DIFF_COUNT="$(git diff HEAD HEAD^ --relative package.json |grep '"version":'|wc -l)"
+          if [ ${DIFF_COUNT} -gt 0 ]; then
+            echo "is_release=true" >>"${GITHUB_OUTPUT}"
+          else
+            echo "is_release=false" >>"${GITHUB_OUTPUT}"
           fi
-      - name: OK
-        run: echo "OK!"
+
+  job1:
+    needs:
+      - prepare
+    if: ${{ needs.prepare.outputs.is_release  }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        run: echo "START-RELEASE"
+  job2:
+    needs:
+      - job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish
+        run: echo "START-Publish"
