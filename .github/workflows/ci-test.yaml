@@ -46,7 +46,7 @@ jobs:
   job1:
     needs:
       - prepare
-    if: ${{ needs.prepare.outputs.is_release  }}
+    if: ${{ needs.prepare.outputs.is_release == true }}
     runs-on: ubuntu-latest
     steps:
       - name: Release
