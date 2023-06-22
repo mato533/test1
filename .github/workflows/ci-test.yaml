@@ -37,7 +37,7 @@ jobs:
         id: check-diff-version
         run: |
           DIFF_COUNT="$(git diff HEAD HEAD^ --relative package.json |grep '"version":'|wc -l)"
-          if [ ${DIFF_COUNT} -gt 0 ]; then
+          if [ ${DIFF_COUNT} -eq 2 ]; then
             echo "is_release=true" >>"${GITHUB_OUTPUT}"
           else
             echo "is_release=false" >>"${GITHUB_OUTPUT}"
