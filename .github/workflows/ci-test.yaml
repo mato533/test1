@@ -38,15 +38,15 @@ jobs:
         run: |
           DIFF_COUNT="$(git diff HEAD HEAD^ --relative package.json |grep '"version":'|wc -l)"
           if [ ${DIFF_COUNT} -eq 2 ]; then
-            echo "is_release=true" >>"${GITHUB_OUTPUT}"
+            echo "is_release=1" >>"${GITHUB_OUTPUT}"
           else
-            echo "is_release=false" >>"${GITHUB_OUTPUT}"
+            echo "is_release=0" >>"${GITHUB_OUTPUT}"
           fi
 
   job1:
     needs:
       - prepare
-    if: ${{ needs.prepare.outputs.is_release == true }}
+    if: ${{ needs.prepare.outputs.is_release > 0 }}
     runs-on: ubuntu-latest
     steps:
       - name: Release
