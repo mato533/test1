@@ -63,7 +63,7 @@ jobs:
           echo "COMMIT_MSG_LOW: ${COMMIT_MSG_LOW}"
           echo "COUNT_RELEASE: ${COUNT_RELEASE}"
           echo "COUNT_VERSION: ${COUNT_VERSION}"
-          if [ ${COUNT_RELEASE} -gt 0 -and ${COUNT_VERSION} -gt 0  ]; then
+          if [ ${COUNT_RELEASE} -gt 0 ] && [ ${COUNT_VERSION} -gt 0  ]; then
             echo "Judging from the commit message that it is subject to release processing."
             echo "${{env.IS_RELEASE_COMMIT}}=1" >>"${GITHUB_OUTPUT}"
           else
@@ -75,7 +75,7 @@ jobs:
         run: |
           IS_UPDATE_VER=${{ steps.check-diff-version.outputs.is_update_version }}
           IS_RELEASE_COMMIT=${{ steps.check-commit-msg.outputs.is_release_commit }}
-          if [ ${IS_UPDATE_VER} -gt 0 -or ${IS_RELEASE_COMMIT} -gt 0 ]; then
+          if [ ${IS_UPDATE_VER} -gt 0 ] || [ ${IS_RELEASE_COMMIT} -gt 0 ]; then
             echo "Steart Release process"
             echo "is_release=1" >>"${GITHUB_OUTPUT}"
           else
