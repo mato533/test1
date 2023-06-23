@@ -1,22 +1,25 @@
-name: CI Test
-run-name: CI TEST
-
+name: CD
+run-name: "Execute release tasks @${{ github.ref_name }}"
 on:
   push:
     branches:
-      - feature/ci-test
+      - master
+    tags:
+      - "!*"
+
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
   GH_USER: "github-actions[bot]"
-  IS_UPDATE_VER: is_update_version
-  IS_RELEASE_COMMIT: is_release_commit
 
 jobs:
   prepare:
+    name: Check if the version in package.json
     runs-on: ubuntu-latest
     outputs:
-      is_release: ${{ steps.release-decision.outputs.is_release }}
+      is_release: ${{ steps.check-diff-version.outputs.is_release }}
+      app_version: ${{ steps.identify-version.outputs.app_version }}
+      app_version_text: ${{ steps.identify-version.outputs.app_version_text }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,19 +31,6 @@ jobs:
           node-version: "18.x"
           cache: "yarn"
 
-      - name: Check the version
-        id: check-diff-version
-        run: |
-          DIFF_COUNT="$(git diff HEAD HEAD^ --relative package.json |grep '"version":'|wc -l)"
-
-          VAR_NAME="is_update_version"
-          if [ ${DIFF_COUNT} -eq 2 ]; then
-            echo "Detected to have updated the version in package.json"
-            echo "${{env.IS_UPDATE_VER}}=1" >>"${GITHUB_OUTPUT}"
-          else
-            echo "The version in package.json is not updated"
-            echo "${{env.IS_UPDATE_VER}}=0" >>"${GITHUB_OUTPUT}"
-          fi
       - name: Identify the version about to release
         id: identify-version
         run: |
@@ -52,6 +42,21 @@ jobs:
           echo "app_version=${APP_VERSION}" >>"${GITHUB_OUTPUT}"
           echo "app_version_text=v${APP_VERSION}" >>"${GITHUB_OUTPUT}"
 
+      - name: Check the version
+        id: check-diff-version
+        run: |
+          DIFF_COUNT="$(git diff HEAD HEAD^ --relative package.json |grep '"version":'|wc -l)"
+
+          VAR_NAME="is_update_version"
+
+          if [ ${DIFF_COUNT} -eq 2 ]; then
+            echo "Detected to have updated the version in package.json"
+            echo "${VAR_NAME}=1" >>"${GITHUB_OUTPUT}"
+          else
+            echo "The version in package.json is not updated"
+            echo "${VAR_NAME}=0" >>"${GITHUB_OUTPUT}"
+          fi
+
       - name: Check the commit message
         id: check-commit-msg
         run: |
@@ -60,13 +65,15 @@ jobs:
           COMMIT_MSG_LOW="$(echo "${COMMIT_MSG,,}")"
           COUNT_RELEASE="$(echo "${COMMIT_MSG_LOW}" | grep "release" | wc -l)"
           COUNT_VERSION="$(echo "${COMMIT_MSG_LOW}" | grep "${{steps.identify-version.outputs.app_version}}" | wc -l)"
+          VAR_NAME="is_release_commit"
           if [ ${COUNT_RELEASE} -gt 0 ] && [ ${COUNT_VERSION} -gt 0  ]; then
             echo "Judged from the commit message that it is subject to release processing."
-            echo "${{env.IS_RELEASE_COMMIT}}=1" >>"${GITHUB_OUTPUT}"
+            echo "${VAR_NAME}=1" >>"${GITHUB_OUTPUT}"
           else
             echo "This commit is not  subject to release processing."
-            echo "${{env.IS_RELEASE_COMMIT}}=0" >>"${GITHUB_OUTPUT}"
+            echo "${VAR_NAME}=0" >>"${GITHUB_OUTPUT}"
           fi
+
       - name: Decision to start release process
         id: release-decision
         run: |
@@ -81,17 +88,18 @@ jobs:
             echo "is_release=0" >>"${GITHUB_OUTPUT}"
           fi
 
-  job1:
+  test:
+    name: Test & build
     needs:
       - prepare
-    if: ${{ needs.prepare.outputs.is_release > 0 }}
     runs-on: ubuntu-latest
+    if: ${{ needs.prepare.outputs.is_release > 0 }}
     steps:
       - name: Release
         run: echo "START-RELEASE"
   job2:
     needs:
-      - job1
+      - test
     runs-on: ubuntu-latest
     steps:
       - name: Publish
