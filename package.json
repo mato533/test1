@@ -1,6 +1,6 @@
 {
   "name": "ci-test-project",
-  "description": "Ci Test Project",
+  "description": "Ci Test Project.",
   "version": "1.0.14",
   "main": "index.js",
   "repository": "https://github.com/mato533/test1.git",
