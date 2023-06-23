@@ -14,7 +14,7 @@ env:
 
 jobs:
   prepare:
-    name: Check if the version in package.json
+    name: Release check
     runs-on: ubuntu-latest
     outputs:
       is_release: ${{ steps.release-decision.outputs.is_release }}
@@ -104,3 +104,4 @@ jobs:
     steps:
       - name: Publish
         run: echo "START-Publish"
+      - run: env
