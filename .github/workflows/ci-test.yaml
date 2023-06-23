@@ -1,9 +1,9 @@
-name: CD
+name: CI Test
 run-name: "Execute release tasks @${{ github.ref_name }}"
 on:
   push:
     branches:
-      - master
+      - feature/ci-test
     tags:
       - "!*"
 
