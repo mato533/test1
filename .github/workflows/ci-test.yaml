@@ -55,16 +55,13 @@ jobs:
       - name: Check the commit message
         id: check-commit-msg
         run: |
+          echo 'Start the release process when the commit message contains the string "release" and the version value in package.json'
           COMMIT_MSG="${{ github.event.head_commit.message }}"
           COMMIT_MSG_LOW="$(echo "${COMMIT_MSG,,}")"
           COUNT_RELEASE="$(echo "${COMMIT_MSG_LOW}" | grep "release" | wc -l)"
           COUNT_VERSION="$(echo "${COMMIT_MSG_LOW}" | grep "${{steps.identify-version.outputs.app_version}}" | wc -l)"
-          echo "COMMIT_MSG: ${COMMIT_MSG}"
-          echo "COMMIT_MSG_LOW: ${COMMIT_MSG_LOW}"
-          echo "COUNT_RELEASE: ${COUNT_RELEASE}"
-          echo "COUNT_VERSION: ${COUNT_VERSION}"
           if [ ${COUNT_RELEASE} -gt 0 ] && [ ${COUNT_VERSION} -gt 0  ]; then
-            echo "Judging from the commit message that it is subject to release processing."
+            echo "Judged from the commit message that it is subject to release processing."
             echo "${{env.IS_RELEASE_COMMIT}}=1" >>"${GITHUB_OUTPUT}"
           else
             echo "This commit is not  subject to release processing."
@@ -73,6 +70,7 @@ jobs:
       - name: Decision to start release process
         id: release-decision
         run: |
+          echo "Release judgment based on update of package.json version value or commit message"
           IS_UPDATE_VER=${{ steps.check-diff-version.outputs.is_update_version }}
           IS_RELEASE_COMMIT=${{ steps.check-commit-msg.outputs.is_release_commit }}
           if [ ${IS_UPDATE_VER} -gt 0 ] || [ ${IS_RELEASE_COMMIT} -gt 0 ]; then
