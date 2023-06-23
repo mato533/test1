@@ -55,10 +55,14 @@ jobs:
       - name: Check the commit message
         id: check-commit-msg
         run: |
-          COMMIT_MSG="$(echo "${{ github.event.head_commit.message }}")"
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
           COMMIT_MSG_LOW="$(echo "${COMMIT_MSG,,}")"
           COUNT_RELEASE="$(echo "${COMMIT_MSG_LOW}" | grep "release" | wc -l)"
           COUNT_VERSION="$(echo "${COMMIT_MSG_LOW}" | grep "${{steps.identify-version.outputs.app_version}}" | wc -l)"
+          echo "COMMIT_MSG: ${COMMIT_MSG}"
+          echo "COMMIT_MSG_LOW: ${COMMIT_MSG_LOW}"
+          echo "COUNT_RELEASE: ${COUNT_RELEASE}"
+          echo "COUNT_VERSION: ${COUNT_VERSION}"
           if [ ${COUNT_RELEASE} -gt 0 -and ${COUNT_VERSION} -gt 0  ]; then
             echo "Judging from the commit message that it is subject to release processing."
             echo "${{env.IS_RELEASE_COMMIT}}=1" >>"${GITHUB_OUTPUT}"
