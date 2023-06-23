@@ -17,7 +17,7 @@ jobs:
     name: Check if the version in package.json
     runs-on: ubuntu-latest
     outputs:
-      is_release: ${{ steps.check-diff-version.outputs.is_release }}
+      is_release: ${{ steps.release-decision.outputs.is_release }}
       app_version: ${{ steps.identify-version.outputs.app_version }}
       app_version_text: ${{ steps.identify-version.outputs.app_version_text }}
     steps:
