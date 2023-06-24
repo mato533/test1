@@ -105,3 +105,4 @@ jobs:
       - name: Publish
         run: echo "START-Publish"
       - run: env
+      - run: echo "${{ github.event_path }}"
