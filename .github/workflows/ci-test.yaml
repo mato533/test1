@@ -1,5 +1,5 @@
 name: Dispach
-run-name: "Execute release tasks @${{ github.ref_name }}"
+run-name: "CI/CD @${{ github.ref_name }}"
 on:
   push:
     branches:
@@ -89,7 +89,7 @@ jobs:
           fi
 
   release:
-    name: Test & build
+    name: CD
     needs:
       - prepare
     if: ${{ needs.prepare.outputs.is_release > 0 }}
@@ -104,7 +104,7 @@ jobs:
 
 
   test:
-    name: Start CI
+    name: CI
     needs:
       - prepare
     if: ${{ needs.prepare.outputs.is_release == 0 }}
