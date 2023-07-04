@@ -43,3 +43,25 @@ jobs:
 
       - name: Run the test
         run: echo  ${{ inputs.app-version }}
+
+      - name: Setting Github user informations
+        run: |
+          git config --local user.email "${{ env.GH_EMAIL }}"
+          git config --local user.name "${{ env.GH_USER }}"
+      - name: Some Change(TEST ONLY)
+        run: echo "${{ inputs.app-version }}">>./test.txt
+      - name: Run the lint and format
+        run: echo lint
+      - name: Commit and push
+        run: |
+          git add -N .
+          if git diff --exit-code --quiet; then
+            exit 0
+          fi
+          git add .
+          git commit -F- << EOM
+          chore: Prepare for release(${{ inputs.app-version-text }})
+
+          [skip ci]
+          EOM
+          git push
