@@ -88,21 +88,26 @@ jobs:
             echo "is_release=0" >>"${GITHUB_OUTPUT}"
           fi
 
-  test:
+  release:
     name: Test & build
     needs:
       - prepare
-    runs-on: ubuntu-latest
     if: ${{ needs.prepare.outputs.is_release > 0 }}
-    steps:
-      - name: Release
-        run: echo "START-RELEASE"
-  job2:
+    uses: ./.github/workflows/release.yaml
+    with:
+      app-version: ${{ needs.prepare.outputs.app_version }}
+      app-version-text: ${{ needs.prepare.outputs.app_version_text }}
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      npm-token: ${{ secrets.NPM_TOKEN }}
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+
+  test:
+    name: Start CI
     needs:
-      - test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Publish
-        run: echo "START-Publish"
-      - run: env
-      - run: echo "${{ github.event_path }}"
+      - prepare
+    if: ${{ needs.prepare.outputs.is_release == 0 }}
+    uses: ./.github/workflows/test.yaml
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}

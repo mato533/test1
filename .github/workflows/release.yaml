@@ -1,0 +1,45 @@
+name: CD
+run-name: "Execute release tasks @${{ github.ref_name }}"
+on:
+  workflow_call:
+    inputs:
+      app-version:
+        required: true
+        type: string
+      app-version-text:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
+      npm-token:
+        required: true
+      codecov-token:
+        required: true
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+  GH_USER: "github-actions[bot]"
+
+jobs:
+  test:
+    name: Test & build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Run the test
+        run: echo  ${{ inputs.app-version-text }}
+
+      - name: Run the test
+        run: echo  ${{ inputs.app-version }}
