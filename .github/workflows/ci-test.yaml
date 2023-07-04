@@ -1,4 +1,4 @@
-name: CI Test
+name: Dispach
 run-name: "Execute release tasks @${{ github.ref_name }}"
 on:
   push:
